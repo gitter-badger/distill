@@ -1,0 +1,21 @@
+{
+    "name": "distill/distill",
+    "description": "PHP Application Framework",
+    "license": "UNLICENSE",
+    "authors": [
+        {
+            "name": "Ralph Schindler",
+            "email": "ralph@ralphschindler.com",
+            "role": "developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Distill\\": "src/"}
+    },
+    "autoload-dev": {
+        "psr-4": {"Distill\\Test\\": "tests/"}
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.*"
+    }
+}
