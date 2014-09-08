@@ -41,7 +41,7 @@ Here are some statements that help understand the Distill philosophy:
 * You'll like the blissfully short implementations
 * You won't miss the endless and deep abstractions
 
-That said P promotes an application architecture with just a
+That said Distill promotes an application architecture with just a
 handful of concepts and features:
 
 * Fast name based service/dependency injection
