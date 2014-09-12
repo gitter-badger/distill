@@ -12,6 +12,7 @@ class PhtmlModule implements ModuleInterface
     public function registerNamespace($namespace, $includePath = null)
     {
         $this->namespaces[$namespace] = $includePath;
+        return $this;
     }
 
     public function bootstrapModule(Application $application)

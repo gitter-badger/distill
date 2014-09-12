@@ -94,8 +94,7 @@ class CliRoute implements RouteInterface
 
     public function assemble($parameters)
     {
-        // @todo Implement this
-        return '';
+        return $this->specification;
     }
 
     protected function parseSpecification($specification)
