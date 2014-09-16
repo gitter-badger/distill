@@ -9,6 +9,7 @@
 namespace Distill\Test;
 
 use Distill\Application;
+use Distill\Callback\CallbackCollection;
 use Distill\Router\CliRoute;
 use Distill\Router\RouteMatch;
 use Distill\Router\Router;
@@ -16,6 +17,33 @@ use Distill\ServiceLocator\ServiceLocator;
 
 class ApplicationTest extends \PHPUnit_Framework_TestCase
 {
+    public function testConstruct()
+    {
+        $app = new Application(['foo' => 'bar']);
+        $this->assertEquals('bar', $app->configuration['foo']);
+
+        $app = new Application(['debug' => true]);
+        $this->assertTrue($app->isDebug());
+    }
+
+    public function testSetDebug()
+    {
+        $app = new Application();
+        $this->assertFalse($app->isDebug());
+        $app->setDebug(true);
+        $this->assertTrue($app->isDebug());
+        $app->setDebug(false);
+        $this->assertFalse($app->isDebug());
+    }
+
+    public function testIsDebug()
+    {
+        $app = new Application();
+        $this->assertFalse($app->isDebug());
+        $app->setDebug(true);
+        $this->assertTrue($app->isDebug());
+    }
+
     /**
      * @covers Distill\Application::initialize
      * @testdox unit test: test initialize()
@@ -83,7 +111,13 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
      */
     public function testCall()
     {
-        $this->markTestIncomplete('TODO');
+        $app = new Application();
+        $this->assertFalse($app->call('foo'));
+
+        $app->on('foo', function () { return 'bar'; });
+        $result = $app->call('foo');
+        $this->assertInstanceOf('Distill\Callback\CallbackContext', $result);
+        $this->assertEquals('bar', $result->getFirstReturn());
     }
 
     /**
@@ -92,7 +126,14 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRegister()
     {
-        $this->markTestIncomplete('TODO');
+        $app = new Application();
+        $app->register([
+            'callbacks' => [
+                ['foo', 'foobar']
+            ]
+        ]);
+        $cc = $app->getCallbackCollection('foo');
+        $this->assertEquals('foobar', $cc->current());
     }
 
     /**
@@ -101,7 +142,13 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddRoute()
     {
-        $this->markTestIncomplete('TODO');
+        $app = new Application();
+        $app->addRoute('foo', ['GET /foo', 'mydispatchable']);
+        $routeStack = $app->routes;
+        /** @var \Distill\Router\HttpRoute $route */
+        $route = $routeStack['foo'];
+        $this->assertEquals('GET /foo', $route->getSpecification());
+        $this->assertEquals('mydispatchable', $route->getDispatchable());
     }
 
     /**
@@ -110,7 +157,10 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddService()
     {
-        $this->markTestIncomplete('TODO');
+        $app = new Application();
+        $app->addService('foo', $s = function () {});
+        $services = $app->services;
+        $this->assertTrue($services->has('foo'));
     }
 
     /**
@@ -119,7 +169,9 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAddCallback()
     {
-        $this->markTestIncomplete('TODO');
+        $app = new Application();
+        $app->addCallback('foo', $f = function () {});
+        $this->assertContains($f, $app->getCallbackCollection('foo'));
     }
 
     /**
@@ -128,7 +180,9 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetCallbackCollection()
     {
-        $this->markTestIncomplete('TODO');
+        $app = new Application();
+        $app->addCallback('foo', $f = function () {});
+        $this->assertInstanceOf('Distill\Callback\CallbackCollection', $app->getCallbackCollection('foo'));
     }
 
     /**

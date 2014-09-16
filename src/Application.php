@@ -234,6 +234,11 @@ class Application implements \ArrayAccess
         return $this->addCallback($name, $callback, $priority);
     }
 
+    /**
+     * @param $name
+     * @param array $parameters
+     * @return false|Callback\CallbackContext
+     */
     public function call($name, $parameters = array())
     {
         if (!isset($this->callbackCollections[$name])) {
@@ -269,8 +274,10 @@ class Application implements \ArrayAccess
     public function addRoute($nameOrRouteSpec /*, $routeSpec */)
     {
         $funcArgs = func_get_args();
-        $args = (is_array($nameOrRouteSpec)) ? array(null, $funcArgs[0]) : array($funcArgs[0], $funcArgs[1]);
-        $this->serviceLocator->get('Router')->getRouteStack()->offsetSet($args[0], $args[1]);
+        $args = (is_array($nameOrRouteSpec)) ? array(null, ) : array($funcArgs[0], $funcArgs[1]);
+        /** @var Router\RouteStack $routeStack */
+        $routeStack = $this->serviceLocator->get('Router')->getRouteStack();
+        $routeStack->offsetSet($args[0], $args[1]);
         return $this;
     }
     
@@ -306,6 +313,7 @@ class Application implements \ArrayAccess
      */
     public function offsetSet($routeName, $routeSpecification)
     {
+        /** @var Router\RouteStack $routeStack */
         $routeStack = $this->serviceLocator->get('Router')->getRouteStack();
         $routeStack[$routeName] = $routeSpecification;
         return $this;

@@ -11,16 +11,11 @@ namespace Distill;
 
 class Configuration implements \ArrayAccess
 {
-    protected $environment = null;
-    protected $applicationPath = null;
-
     protected $data = [];
 
-    public function __construct(array $data = array(), $environment = null, $applicationPath = null)
+    public function __construct(array $data = array())
     {
         $this->merge($data);
-        $this->environment = $environment;
-        $this->applicationPath = $applicationPath;
     }
 
     public function merge($data)

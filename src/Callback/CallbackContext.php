@@ -14,9 +14,14 @@ class CallbackContext implements \ArrayAccess, \IteratorAggregate
         return $this;
     }
 
-    public function getReturn()
+    public function getFirstReturn()
     {
         return reset($this->returns);
+    }
+
+    public function getLastReturn()
+    {
+        return end($this->returns);
     }
 
     public function getReturns()

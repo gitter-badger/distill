@@ -12,15 +12,18 @@ class ArrayModule implements ModuleInterface
     /**@+
      * @var array
      */
-    protected $routes;
-    protected $services;
-    protected $configuration;
-    protected $callbacks;
+    protected $routes = array();
+    protected $services = array();
+    protected $configuration = array();
+    protected $callbacks = array();
     /**@-*/
 
     public function __construct(array $moduleArray = array())
     {
         foreach ($moduleArray as $section => $c) {
+            if (!is_array($c)) {
+                continue;
+            }
             switch ($section) {
                 case 'route':
                 case 'routes':
@@ -49,30 +52,38 @@ class ArrayModule implements ModuleInterface
         $router = $serviceLocator->get('Router');
 
         // configuration
-        $configuration->merge($this->configuration);
+        if ($this->configuration) {
+            $configuration->merge($this->configuration);
+        }
 
         // services
-        foreach ($this->services as $name => $args) {
-            if (is_object($args) && !$args instanceof \Closure) {
-                $serviceLocator->set($name, $args);
-            } else {
-                $serviceLocator->set($name, $args[0], (isset($args[1]) ? $args[1] : null));
+        if ($this->services) {
+            foreach ($this->services as $name => $args) {
+                if (is_object($args) && !$args instanceof \Closure) {
+                    $serviceLocator->set($name, $args);
+                } else {
+                    $serviceLocator->set($name, $args[0], (isset($args[1]) ? $args[1] : null));
+                }
             }
         }
 
         // routes
-        $routeStack = $router->getRouteStack();
-        foreach ($this->routes as $routeName => $route) {
-            $routeStack[$routeName] = $route;
+        if ($this->routes) {
+            $routeStack = $router->getRouteStack();
+            foreach ($this->routes as $routeName => $route) {
+                $routeStack[$routeName] = $route;
+            }
         }
 
         // callbacks
-        foreach ($this->callbacks as $callback) {
-            $application->addCallback(
-                $callback[0],
-                $callback[1],
-                (isset($callback[2]) ? $callback[2] : 0)
-            );
+        if ($this->callbacks) {
+            foreach ($this->callbacks as $callback) {
+                $application->addCallback(
+                    $callback[0],
+                    $callback[1],
+                    (isset($callback[2]) ? $callback[2] : 0)
+                );
+            }
         }
     }
 
