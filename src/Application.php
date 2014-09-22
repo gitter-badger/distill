@@ -108,10 +108,14 @@ class Application implements \ArrayAccess
     }
 
     /**
-     * @param null $path
+     * @param string $path
      */
     public function setPath($path)
     {
+        $path = realpath($path);
+        if (!$path) {
+            throw new \InvalidArgumentException('$path must be a real path on the filesystem');
+        }
         $this->path = $path;
         return $this;
     }

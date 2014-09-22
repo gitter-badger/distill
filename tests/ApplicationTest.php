@@ -26,6 +26,10 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($app->isDebug());
     }
 
+    /**
+     * @covers Distill\Application::setDebug
+     * @testdox unit test: test setDebug()
+     */
     public function testSetDebug()
     {
         $app = new Application();
@@ -36,12 +40,39 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($app->isDebug());
     }
 
+    /**
+     * @covers Distill\Application::isDebug
+     * @testdox unit test: test isDebug()
+     */
     public function testIsDebug()
     {
         $app = new Application();
         $this->assertFalse($app->isDebug());
         $app->setDebug(true);
         $this->assertTrue($app->isDebug());
+    }
+
+    /**
+     * @covers Distill\Application::setEnvironment
+     * @testdox unit test: test setEnvironment()
+     */
+    public function testSetEnvironment()
+    {
+        $app = new Application();
+        $this->assertSame($app, $app->setEnvironment('dev'));
+    }
+
+    /**
+     * @covers Distill\Application::getEnvironment
+     * @testdox unit test: test getEnvironment()
+     */
+    public function testGetEnvironment()
+    {
+        $app = new Application();
+        $this->assertEquals('production', $app->getEnvironment());
+
+        $app->setEnvironment('dev');
+        $this->assertEquals('dev', $app->getEnvironment());
     }
 
     /**
@@ -114,10 +145,11 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         $app = new Application();
         $this->assertFalse($app->call('foo'));
 
-        $app->on('foo', function () { return 'bar'; });
+        $called = false;
+        $app->on('foo', function () use (&$called) { $called = true; });
         $result = $app->call('foo');
         $this->assertInstanceOf('Distill\Callback\CallbackContext', $result);
-        $this->assertEquals('bar', $result->getFirstReturn());
+        $this->assertTrue($called);
     }
 
     /**
