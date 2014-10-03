@@ -24,13 +24,13 @@ class CallbackContextTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Distill\Callback\CallbackContext::getReturn
+     * @covers Distill\Callback\CallbackContext::getFirstReturn
      * @testdox unit test: test getReturn()
      */
     public function testGetReturn()
     {
         $this->callbackContext->pushReturn(5);
-        $this->assertEquals(5, $this->callbackContext->getReturn());
+        $this->assertEquals(5, $this->callbackContext->getFirstReturn());
     }
 
     /**

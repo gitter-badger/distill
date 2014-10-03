@@ -4,7 +4,7 @@ namespace Distill\Module;
 
 use Distill\Application;
 
-class CliErrorModule implements ModuleInterface
+class HttpErrorModule implements ModuleInterface
 {
     public function bootstrapModule(Application $application)
     {
@@ -14,19 +14,20 @@ class CliErrorModule implements ModuleInterface
 
     public function handleNoRouteMatch($routeMatch)
     {
-        if (php_sapi_name() != 'cli') {
+        if (php_sapi_name() == 'cli') {
             return;
         }
         if (!$routeMatch) {
-            echo 'Command not found' . PHP_EOL;
+            http_response_code(404);
+            echo 'Page not found.';
             exit(-1);
         }
     }
 
-    public function handleError(\Exception $exception)
+    public function handleException(\Exception $exception)
     {
-        var_dump($exception);
+        http_response_code(500);
+        echo 'An internal application error has occurred.';
         exit(-1);
     }
-
 }

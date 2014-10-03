@@ -11,14 +11,28 @@ namespace Distill;
 use Distill\Router\RouteMatch;
 
 /**
- * @property Configuration $configuration
- * @property Router\Router $router
- * @property Router\RouteStack $routes
- * @property ServiceLocator\ServiceLocator $serviceLocator
- * @property ServiceLocator\ServiceLocator $services
+ * @property bool $debug Is Debug Enabled?
+ * @property bool $isDebug  Is Debug Enabled?
+ * @property string $env Environment name
+ * @property string $environment Environment name
+ * @property string $path Application Path
+ * @property Configuration $configuration Configuration service ArrayObject
+ * @property Router\Router $router Router
+ * @property Router\RouteStack $routes RouteStack
+ * @property ServiceLocator\ServiceLocator $serviceLocator The service locator
+ * @property ServiceLocator\ServiceLocator $services The service locator
+ * @property Callback\CallbackCollection[] $callbacks The array of callbacks
  */
 class Application implements \ArrayAccess
 {
+    /**@+
+     * @var
+     */
+    protected $debug = false;
+    protected $environment = 'production';
+    protected $path = null;
+    /**@-*/
+
     /** @var ServiceLocator\ServiceLocator */
     protected $serviceLocator = null;
 
@@ -26,7 +40,7 @@ class Application implements \ArrayAccess
     protected $callbackCollections = array();
 
     /**
-     * @param array $configuration
+     * @param array|ServiceLocator\ServiceLocator config or service locator
      */
     public function __construct(/* configuration array or service locator instance */)
     {
@@ -35,10 +49,75 @@ class Application implements \ArrayAccess
         $serviceLocator = ($arg1 instanceof ServiceLocator\ServiceLocator) ? $arg1 : new ServiceLocator\ServiceLocator;
 
         if (is_array($arg1)) {
+            foreach ($arg1 as $n => $v) {
+                switch (strtolower($n)) {
+                    case 'debug': $this->setDebug($v); unset($arg1[$n]); break;
+                    case 'env': case 'environment': $this->setEnvironment($v); unset($arg1[$n]); break;
+                    case 'path': $this->setPath($v); unset($arg1[$n]); break;
+                }
+            }
             $serviceLocator->set('Configuration', new Configuration($arg1));
         }
 
         $this->bootstrap($serviceLocator);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDebug()
+    {
+        return $this->debug;
+    }
+
+    /**
+     * @param bool $debug
+     */
+    public function setDebug($debug)
+    {
+        $this->debug = (bool) $debug;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEnvironment()
+    {
+        return $this->environment;
+    }
+
+    /**
+     * @param string $environment
+     * @return $this
+     */
+    public function setEnvironment($environment)
+    {
+        if (!is_string($environment)) {
+            throw new \InvalidArgumentException('environment must be a string');
+        }
+        $this->environment = $environment;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath($path)
+    {
+        $path = realpath($path);
+        if (!$path) {
+            throw new \InvalidArgumentException('$path must be a real path on the filesystem');
+        }
+        $this->path = $path;
+        return $this;
     }
 
     protected function bootstrap(ServiceLocator\ServiceLocator $sl)
@@ -159,6 +238,11 @@ class Application implements \ArrayAccess
         return $this->addCallback($name, $callback, $priority);
     }
 
+    /**
+     * @param $name
+     * @param array $parameters
+     * @return false|Callback\CallbackContext
+     */
     public function call($name, $parameters = array())
     {
         if (!isset($this->callbackCollections[$name])) {
@@ -194,8 +278,10 @@ class Application implements \ArrayAccess
     public function addRoute($nameOrRouteSpec /*, $routeSpec */)
     {
         $funcArgs = func_get_args();
-        $args = (is_array($nameOrRouteSpec)) ? array(null, $funcArgs[0]) : array($funcArgs[0], $funcArgs[1]);
-        $this->serviceLocator->get('Router')->getRouteStack()->offsetSet($args[0], $args[1]);
+        $args = (is_array($nameOrRouteSpec)) ? array(null, ) : array($funcArgs[0], $funcArgs[1]);
+        /** @var Router\RouteStack $routeStack */
+        $routeStack = $this->serviceLocator->get('Router')->getRouteStack();
+        $routeStack->offsetSet($args[0], $args[1]);
         return $this;
     }
     
@@ -231,6 +317,7 @@ class Application implements \ArrayAccess
      */
     public function offsetSet($routeName, $routeSpecification)
     {
+        /** @var Router\RouteStack $routeStack */
         $routeStack = $this->serviceLocator->get('Router')->getRouteStack();
         $routeStack[$routeName] = $routeSpecification;
         return $this;
@@ -284,6 +371,14 @@ class Application implements \ArrayAccess
     public function __get($name)
     {
         switch (strtolower($name)) {
+            case 'debug':
+            case 'isdebug':
+                return $this->debug;
+            case 'env':
+            case 'environment':
+                return $this->environment;
+            case 'path':
+                return $this->path;
             case 'configuration':
             case 'config':
                 return $this->serviceLocator->get('Configuration');
