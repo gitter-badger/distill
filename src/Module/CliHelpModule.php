@@ -21,7 +21,7 @@ class CliHelpModule implements ModuleInterface
         $application->on('Application.PreRoute', [$this, 'printBanner']);
         $application->on('Application.PostRoute', [$this, 'handleNoRouteMatch']);
         $application->on('Application.PostDispatch', function () { echo "\n"; });
-        $application->on('Application.Error', [$this, 'handleException']);
+        $application->on('Application.Error', [$this, 'handleError']);
     }
 
     public function initialize(Application $application)
@@ -31,7 +31,7 @@ class CliHelpModule implements ModuleInterface
 
     public function printBanner()
     {
-        echo $this->name . PHP_EOL . PHP_EOL;
+        echo "$this->name\n\n";
     }
 
     public function handleNoRouteMatch($routeMatch)
@@ -40,7 +40,7 @@ class CliHelpModule implements ModuleInterface
             return;
         }
         if (!$routeMatch) {
-            echo 'Command not found' . PHP_EOL;
+            echo "Command not found\n";
             $this->printHelp();
             exit(-1);
         }
@@ -55,8 +55,17 @@ class CliHelpModule implements ModuleInterface
     public function printHelp()
     {
         $routes = $this->application->routes;
+        echo "\nRegistered commands:\n";
+        $width = $i = -1;
+        $routeTableRows = [];
         foreach ($routes as $name => $route) {
-            echo $name . ' ' . $route->assemble([]) . PHP_EOL;
+            $routeTableRows[++$i] = [$route->assemble([]), "The $name command"];
+            if (strlen($routeTableRows[$i][0]) > $width) {
+                $width = strlen($routeTableRows[$i][0]);
+            }
+        }
+        foreach ($routeTableRows as $routeTableRow) {
+            printf("    %-{$width}.{$width}s    %-30.30s\n", $routeTableRow[0], $routeTableRow[1]);
         }
     }
 
