@@ -23,9 +23,6 @@ class ServiceLocator implements \ArrayAccess, \Countable
     /** @var bool[] */
     protected $modifiables = [];
 
-    /** @var [type][method][args] */
-    protected $arguments = [];
-
     /**
      * @param $name
      * @return bool
@@ -47,7 +44,7 @@ class ServiceLocator implements \ArrayAccess, \Countable
     /**
      * @param $name
      * @param string|callable|object $service
-     * @param string $type (Null if actual service)
+     * @param string|string[] $type (Null if actual service)
      * @param bool $modifiable
      * @return ServiceLocator
      * @throws \InvalidArgumentException
@@ -70,11 +67,15 @@ class ServiceLocator implements \ArrayAccess, \Countable
             $this->factories[$name] = $service;
         }
 
+        if ($type) {
+            foreach (((!is_array($type)) ? [$type] : $type) as $type) {
+                $this->types[strtolower($type)] = $name;
+            }
+        }
+
         if (is_object($service) && !$service instanceof \Closure) {
             $this->instances[$name] = $service;
             $this->types[($type) ?: strtolower(get_class($service))] = $name;
-        } elseif ($type) {
-            $this->types[$type] = strtolower($name);
         }
 
         $this->modifiables[$name] = $modifiable;
@@ -264,7 +265,7 @@ class ServiceLocator implements \ArrayAccess, \Countable
         /** @var \ReflectionParameter[][] */
         static $funcRefs = array();
         if (!is_array($parameters) && !$parameters instanceof \ArrayAccess) {
-            throw new \InvalidArgumentException('$arguments for ' . __CLASS__ . ' must be array or ArrayAccess');
+            throw new \InvalidArgumentException('$parameters for ' . __CLASS__ . ' must be array or ArrayAccess');
         }
 
         // determine reference name
@@ -326,6 +327,10 @@ class ServiceLocator implements \ArrayAccess, \Countable
             if (isset($parameters[$paramName])) {
                 // call-time arguments get priority
                 $matchedArgs[] = $parameters[$paramName];
+                continue;
+            }
+            if (isset($this->factories[$paramName]) || isset($this->instances[$paramName])) {
+                $matchedArgs[] = $this[$paramName];
                 continue;
             }
             if ($typehintRef) {

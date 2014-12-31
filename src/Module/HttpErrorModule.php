@@ -6,10 +6,15 @@ use Distill\Application;
 
 class HttpErrorModule implements ModuleInterface
 {
+    protected $showException = false;
+
     public function bootstrapModule(Application $application)
     {
         $application->on('Application.PostRoute', [$this, 'handleNoRouteMatch']);
         $application->on('Application.Error', [$this, 'handleException']);
+        if ($application->isDebug) {
+            $this->showException = true;
+        }
     }
 
     public function handleNoRouteMatch($routeMatch)
@@ -27,7 +32,10 @@ class HttpErrorModule implements ModuleInterface
     public function handleException(\Exception $exception)
     {
         http_response_code(500);
-        echo 'An internal application error has occurred.';
+        echo "An internal application error has occurred.\n";
+        if ($this->showException) {
+            echo $exception;
+        }
         exit(-1);
     }
 }
