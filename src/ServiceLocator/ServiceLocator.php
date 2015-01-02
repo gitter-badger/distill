@@ -82,6 +82,13 @@ class ServiceLocator implements \ArrayAccess, \Countable
         return $this;
     }
 
+    public function addType($name, $type)
+    {
+        foreach (((!is_array($type)) ? [$type] : $type) as $type) {
+            $this->types[strtolower($type)] = $name;
+        }
+    }
+
     public function getFactory($name)
     {
         return $this->factories[$name];
@@ -348,8 +355,8 @@ class ServiceLocator implements \ArrayAccess, \Countable
                 continue;
             }
 
-            $subject = preg_replace('#\s+#', ' ', (string) $r);
-            throw new \RuntimeException('Could not find a match for ' . $rp . ' of ' . $subject);
+            $subject = preg_replace('#\s+#', ' ', (string) $rp);
+            throw new \RuntimeException('Could not find a match for ' . $rp . ' of ' . $refName);
         }
         return $matchedArgs;
     }
