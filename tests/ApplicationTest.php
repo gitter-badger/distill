@@ -84,7 +84,8 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase
         /** @var Application|\PhpUnit_Framework_MockObject_MockObject $app */
         $app = $this->getMock('Distill\Application', ['call']);
         $app->expects($this->once())->method('call')->with('Application.Initialize');
-        $this->assertSame($app, $app->initialize());
+        $this->assertTrue($app->initialize());
+        $this->assertFalse($app->initialize());
     }
 
     /**

@@ -195,7 +195,7 @@ class ServiceLocator implements \ArrayAccess, \Countable
 
     public function invoke($callable, $parameters = array(), $scope = null, &$invokedCallable = null)
     {
-        if (is_string($callable) && strpos($callable, '->') !== false) {
+        if (is_string($callable) && (strpos($callable, '->') !== false || method_exists($callable, '__invoke'))) {
             $callable = $this->instantiate($callable, $parameters);
         }
 
@@ -279,6 +279,10 @@ class ServiceLocator implements \ArrayAccess, \Countable
         if (is_string($callable)) {
             $refName = $callable;
             $refType = (strpos($callable, '::') !== false) ? 'ReflectionMethod' : 'ReflectionFunction';
+            if ($refType === 'ReflectionFunction' && method_exists($callable, '__invoke')) {
+                $refType = 'ReflectionMethod';
+                $refName .= '::__invoke';
+            }
         } elseif ($callable instanceof \Closure) {
             $refName = spl_object_hash($callable);
             $refType = 'ReflectionFunction';
@@ -291,8 +295,8 @@ class ServiceLocator implements \ArrayAccess, \Countable
             } else {
                 return array();
             }
-        } elseif (is_object($callable) && is_callable($callable)) {
-            $refName = get_class($callable);
+        } elseif (is_object($callable) && is_callable($callable, false, $callableLookup)) {
+            $refName = $callableLookup;
             $refType = 'ReflectionClass';
         } else {
             throw new \RuntimeException('Unknown reflection method type');

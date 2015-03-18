@@ -8,7 +8,6 @@
  */
 
 namespace Distill;
-use Distill\Router\RouteMatch;
 
 /**
  * @property bool $debug Is Debug Enabled?
@@ -26,11 +25,12 @@ use Distill\Router\RouteMatch;
 class Application implements \ArrayAccess
 {
     /**@+
-     * @var
+     * @var bool|string
      */
     protected $debug = false;
     protected $environment = 'production';
     protected $path = null;
+    protected $isInitialized = false;
     /**@-*/
 
     /** @var ServiceLocator\ServiceLocator */
@@ -151,12 +151,16 @@ class Application implements \ArrayAccess
     }
 
     /**
-     * @return $this
+     * @return bool
      */
     public function initialize()
     {
+        if ($this->isInitialized) {
+            return false;
+        }
         $this->call('Application.Initialize');
-        return $this;
+        $this->isInitialized = true;
+        return true;
     }
 
     /**
@@ -175,7 +179,7 @@ class Application implements \ArrayAccess
 
         try {
             $routeMatch = $router->route();
-            if ($routeMatch instanceof RouteMatch) {
+            if ($routeMatch instanceof Router\RouteMatch) {
                 $this->serviceLocator->set('RouteMatch', $routeMatch);
             }
         } catch (\Exception $e) {

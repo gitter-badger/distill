@@ -8,4 +8,9 @@ class A
     {
         return true;
     }
+
+    public function __invoke()
+    {
+        return true;
+    }
 }
