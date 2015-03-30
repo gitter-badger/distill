@@ -71,11 +71,12 @@ class ServiceLocator implements \ArrayAccess, \Countable
             foreach (((!is_array($type)) ? [$type] : $type) as $type) {
                 $this->types[strtolower($type)] = $name;
             }
+        } else {
+            $this->types[strtolower(get_class($service))] = $name;
         }
 
         if (is_object($service) && !$service instanceof \Closure) {
             $this->instances[$name] = $service;
-            $this->types[($type) ?: strtolower(get_class($service))] = $name;
         }
 
         $this->modifiables[$name] = $modifiable;

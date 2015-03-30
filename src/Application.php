@@ -127,7 +127,7 @@ class Application implements \ArrayAccess
         // router
         ($sl->has('Router')) ? $sl->get('Router') : ($sl->set('Router', new Router\Router)->get('Router'));
 
-        $sl->set('Application', $this);
+        $sl->set('Application', $this, [get_class($this), __CLASS__]);
         $sl->set('ServiceLocator', $sl);
 
         // config file application configuration

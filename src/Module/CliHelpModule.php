@@ -36,7 +36,7 @@ class CliHelpModule implements ModuleInterface
 
     public function handleNoRouteMatch($routeMatch)
     {
-        if (php_sapi_name() != 'cli') {
+        if (php_sapi_name() !== 'cli') {
             return;
         }
         if (!$routeMatch) {
