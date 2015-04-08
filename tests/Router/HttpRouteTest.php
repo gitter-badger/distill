@@ -12,6 +12,8 @@ class HttpRouteTest extends \PHPUnit_Framework_TestCase
      */
     public function testMatch($ctorArgs, $matchParams, $equalTo)
     {
+        $ctorArgs = (array) $ctorArgs;
+
         $cliRoute = new HttpRoute(
             $ctorArgs[0],
             function () { return true; },
@@ -28,85 +30,91 @@ class HttpRouteTest extends \PHPUnit_Framework_TestCase
         return [
             // match root
             [
-                ['GET /'],
+                'GET /',
                 ['uri' => '/', 'method' => 'GET'],
                 []
             ],
             // match root with required param, provided
             [
-                ['/:name'],
+                '/:name',
                 ['uri' => '/ralph', 'method' => 'GET'],
                 ['name' => 'ralph']
             ],
             // match root with required param, not provided
             [
-                ['/:name'],
+                '/:name',
                 ['uri' => '/', 'method' => 'GET'],
                 false
             ],
             // match root with optional param, provided
             [
-                ['/[:name]'],
+                '/[:name]',
                 ['uri' => '/ralph', 'method' => 'GET'],
                 ['name' => 'ralph']
             ],
             // match root with optional param, not provided
             [
-                ['/[:name]'],
+                '/[:name]',
                 ['uri' => '/', 'method' => 'GET'],
                 []
             ],
             // match literal with optional param, not provided
             [
-                ['/hello[/:name]'],
+                '/hello[/:name]',
                 ['uri' => '/hello', 'method' => 'GET'],
                 []
             ],
             // match literal with optional param, provided
             [
-                ['/hello[/:name]'],
+                '/hello[/:name]',
                 ['uri' => '/hello/ralph', 'method' => 'GET'],
                 ['name' => 'ralph']
             ],
             // match literal and required param, not provided
             [
-                ['/hello/:name'],
+                '/hello/:name',
                 ['uri' => '/hello', 'method' => 'GET'],
                 false
             ],
             // match optional param with validation, provided
             [
-                ['/hello[/:name#ralph|joe#]'],
+                '/hello[/:name#ralph|joe#]',
                 ['uri' => '/hello/joe', 'method' => 'GET'],
                 ['name' => 'joe']
             ],
             // match optional param with validation, provided, but fails validation
             [
-                ['/hello[/:name#ralph|joe#]'],
+                '/hello[/:name#ralph|joe#]',
                 ['uri' => '/hello/foo', 'method' => 'GET'],
                 false
             ],
+            // match optional parameter with validation, not provided
+            [
+                '/hello[:id#\d#]',
+                ['uri' => '/hello', 'method' => 'GET'],
+                []
+            ],
             // match required param with validation, provided
             [
-                ['/hello/:name#ralph|joe#'],
+                '/hello/:name#ralph|joe#',
                 ['uri' => '/hello/ralph', 'method' => 'GET'],
                 ['name' => 'ralph']
             ],
             // match required param with validation, not provided
             [
-                ['/hello/:name#ralph|joe#'],
+                '/hello/:name#ralph|joe#',
                 ['uri' => '/hello', 'method' => 'GET'],
                 false
             ],
             // match required param with regex validation, provided
             [
-                ['/hello/:id#\d#'],
+                '/hello/:id#\d#',
                 ['uri' => '/hello/5', 'method' => 'GET'],
                 ['id' => '5']
             ],
             // match required param with regex validation, provided
             [
-                ['/hello/:id#\d#'],
+                '/hello/:id#\d#',
                 ['uri' => '/hello/thing', 'method' => 'GET'],
                 false
             ],

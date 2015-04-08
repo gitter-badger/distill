@@ -122,13 +122,12 @@ class HttpRoute implements RouteInterface
             if ($parameterValue[0] != '') {
                 $parameters[$parameterName] = $parameterValue[0];
             }
-
         }
 
         // validate:
         foreach ($this->parameterValidators as $parameterName => $validators) {
             foreach ($validators as $validator) {
-                if (is_string($validator) && $validator{0} == '#') {
+                if (is_string($validator) && $validator{0} == '#' && isset($parameters[$parameterName])) {
                     if (!preg_match($validator, $parameters[$parameterName])) {
                         return false;
                     }
