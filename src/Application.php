@@ -109,6 +109,7 @@ class Application implements \ArrayAccess
 
     /**
      * @param string $path
+     * @return $this
      */
     public function setPath($path)
     {
@@ -317,7 +318,7 @@ class Application implements \ArrayAccess
     /**
      * @param string|null $routeName
      * @param string|Router\RouteInterface $routeSpecification
-     * @return Application|void
+     * @return Application
      */
     public function offsetSet($routeName, $routeSpecification)
     {
