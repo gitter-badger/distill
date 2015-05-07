@@ -96,7 +96,64 @@ with the addition of the Distill `Instantiate & Invoke` syntax.
 Routes & Dispatching
 --------------------
 
-@todo
+You can add routes to the `$app` object
+
+```php
+$app['home'] = ['GET /', function() {
+    return ['view_script' => 'hello.phtml'];
+}];
+```
+
+or as
+
+```php
+$app['home'] = ['GET /',  'Application\Controller\HelloWorldController->execute'];
+```
+
+Here `Application\Controller\HelloWorldController` and `execute` is the method.
+
+## Required Parameter
+
+```php
+$app['required-param'] = ['GET /hello/:name', function($name) {
+    return ['view_script' => 'hello.phtml', 'name' => $name];
+}];
+```
+
+## Optional Parameter
+
+```php
+$app['optional-param1'] = ['GET /optional1/[:name]', function($name = '') {
+    return ['view_script' => 'hello.phtml', 'name' => $name];
+}];
+
+$app['optional-param2'] = ['GET /optional2[/:name]', function($name = '') {
+    return ['view_script' => 'hello.phtml', 'name' => $name];
+}];
+```
+
+## Parameter Validation
+
+You can validate the required/optional parameters inside `#` as below
+
+```php
+$app['param-validation'] = ['GET /param-validation[/:name#ralph|joe#]', function($name) {
+    return ['view_script' => 'hello.phtml', 'name' => $name];
+}];
+```
+
+The above example make sure that only 2 routes are only matched.
+
+1. `/param-validation/ralph`
+2. `/param-validation/joe`
+
+You can also validate via regular expression as 
+
+```php
+$app['withid'] = ['GET /withid/[:id#\d#]', function($id) {
+    return ['view_script' => 'hello.phtml', 'name' => $id];
+}];
+```
 
 Built-in Application Services
 -----------------------------
