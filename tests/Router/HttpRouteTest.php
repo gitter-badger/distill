@@ -14,14 +14,14 @@ class HttpRouteTest extends \PHPUnit_Framework_TestCase
     {
         $ctorArgs = (array) $ctorArgs;
 
-        $cliRoute = new HttpRoute(
+        $httpRoute = new HttpRoute(
             $ctorArgs[0],
             function () { return true; },
             (isset($ctorArgs[1])) ? $ctorArgs[1] : [],
             (isset($ctorArgs[2])) ? $ctorArgs[2] : [],
             (isset($ctorArgs[3])) ? $ctorArgs[3] : true
         );
-        $output = $cliRoute->match($matchParams);
+        $output = $httpRoute->match($matchParams);
         $this->assertEquals($equalTo, $output);
     }
 
@@ -118,6 +118,12 @@ class HttpRouteTest extends \PHPUnit_Framework_TestCase
                 ['uri' => '/hello/thing', 'method' => 'GET'],
                 false
             ],
+            // match required param with regex validation, provided
+            [
+                '/hello/:id#\d#',
+                ['uri' => '/hello/456ggg', 'method' => 'GET'],
+                false
+            ],
             // match literal, no implied trailing slash
             [
                 ['/hello', [], [], false],
@@ -157,4 +163,3 @@ class HttpRouteTest extends \PHPUnit_Framework_TestCase
         ];
     }
 }
- 
