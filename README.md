@@ -1,6 +1,8 @@
 Distill PHP
 ===========
 
+[![Circle CI](https://circleci.com/gh/distillphp/distill.svg?style=svg)](https://circleci.com/gh/distillphp/distill)
+
 Short Intro
 -----------
 
