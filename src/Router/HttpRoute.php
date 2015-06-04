@@ -41,7 +41,7 @@ class HttpRoute implements RouteInterface
 
     public function match(array $source)
     {
-        if (!isset($source['method']) || !isset($source['uri'])) {
+        if (!isset($source['method'], $source['uri'])) {
             return false;
         }
 
@@ -127,13 +127,16 @@ class HttpRoute implements RouteInterface
         // validate:
         foreach ($this->parameterValidators as $parameterName => $validators) {
             foreach ($validators as $validator) {
-                if (is_string($validator) && $validator{0} == '#' && isset($parameters[$parameterName])) {
-                    if (!preg_match($validator, $parameters[$parameterName])) {
-                        return false;
-                    }
+                if (is_string($validator)
+                    && $validator{0} === '#'
+                    && isset($parameters[$parameterName])
+                    && !preg_match($validator, $parameters[$parameterName])
+                ) {
+                    return false;
                 }
             }
         }
+
 
         return $parameters;
     }

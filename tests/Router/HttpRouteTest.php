@@ -118,11 +118,17 @@ class HttpRouteTest extends \PHPUnit_Framework_TestCase
                 ['uri' => '/hello/thing', 'method' => 'GET'],
                 false
             ],
-            // match required param with regex validation, provided
+            // failed match required param with regex validation, provided
             [
-                '/hello/:id#\d#',
+                '/hello/:id#^\d+$#',
                 ['uri' => '/hello/456ggg', 'method' => 'GET'],
                 false
+            ],
+            // successful match required param with regex validation, provided
+            [
+                '/hello/:id#^\d+$#',
+                ['uri' => '/hello/456', 'method' => 'GET'],
+                ['id' => '456']
             ],
             // match literal, no implied trailing slash
             [
