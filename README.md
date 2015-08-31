@@ -1,6 +1,8 @@
 Distill PHP
 ===========
 
+[![Join the chat at https://gitter.im/distillphp/distill](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/distillphp/distill?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Circle CI](https://circleci.com/gh/distillphp/distill.svg?style=svg)](https://circleci.com/gh/distillphp/distill)
 
 Short Intro
